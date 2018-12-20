@@ -13,10 +13,12 @@ TinyGPS gps;
 HardwareSerial Uart_gps = HardwareSerial();
 String data_buffer;
 
+
 void setup() {
   Serial.begin(115200);
-  Uart_gps.begin(9600);
-  while(!Serial && !Uart_gps.available()){
+  Uart_gps.begin(19200);
+  Serial2.begin(19200); //Slave connection
+  while(!Serial || !Uart_gps || !Serial2){
     ;
   }
     
@@ -57,3 +59,11 @@ void loop() {
   }  
   
 }//end loop
+
+//ISR for slave
+void serialEvent2(){
+  while(Serial2.available() > 0){ //need to read enitre string, might not be the way to go
+    data_buffer += Serial2.read(); 
+  }
+  
+}
