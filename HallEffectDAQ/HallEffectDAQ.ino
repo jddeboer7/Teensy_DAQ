@@ -1,18 +1,18 @@
 #include "LiveDisplay.h"
 #include "WheelSpeed.h"
 
-const byte PORT_1 = 2;
-const byte PORT_2 = 3;
-const byte PORT_3 = 4;
-const byte PORT_4 = 5;
+#include "Slave_Ports.h"
+
 const byte TRIGGERS = 1;
 const byte CHARS = 3;
 
+//TODO: use RTC signal to add timestamps
+
 // Instantiate front wheel speed
-WheelSpeed w1 = WheelSpeed(TRIGGERS);
-WheelSpeed w2 = WheelSpeed(TRIGGERS);
-WheelSpeed w3 = WheelSpeed(TRIGGERS);
-WheelSpeed w4 = WheelSpeed(TRIGGERS);
+WheelSpeed FR = WheelSpeed(TRIGGERS);
+WheelSpeed FL = WheelSpeed(TRIGGERS);
+WheelSpeed RW = WheelSpeed(TRIGGERS);
+WheelSpeed En = WheelSpeed(TRIGGERS);
 
 void setup() {
 
@@ -23,18 +23,15 @@ void setup() {
    }
 
   // Set up front wheel
-  const byte i1 = digitalPinToInterrupt(PORT_1);
+  const byte i1 = digitalPinToInterrupt(HE_FR);
   attachInterrupt(i1, ISR_1, RISING);
-  const byte i2 = digitalPinToInterrupt(PORT_2);
+  const byte i2 = digitalPinToInterrupt(HE_FL);
   attachInterrupt(i2, ISR_2, RISING);
-  const byte i3 = digitalPinToInterrupt(PORT_3);
+  const byte i3 = digitalPinToInterrupt(HE_RW);
   attachInterrupt(i3, ISR_3, RISING);
-  const byte i4 = digitalPinToInterrupt(PORT_4);
+  const byte i4 = digitalPinToInterrupt(HE_E);
   attachInterrupt(i4, ISR_4, RISING);
-
-
 }
-
 
 void loop() {
   ;
@@ -42,25 +39,25 @@ void loop() {
 
 
 void ISR_1() {
-  w1.calcRPS();
-  Serial.print("w1: ");
-  Serial.println((byte) w1.getRPS());
+  FR.calcRPS();
+  Serial.print("FR: ");
+  Serial.println((byte) FR.getRPS());
 }
 
 void ISR_2() {
-  w2.calcRPS();
-  Serial.print("w2: ");
-  Serial.println((byte) w2.getRPS());
+  FL.calcRPS();
+  Serial.print("FL: ");
+  Serial.println((byte) FL.getRPS());
 }
 
 void ISR_3() {
-  w3.calcRPS();
-  Serial.print("w3: ");
-  Serial.println((byte) w3.getRPS());
+  RW.calcRPS();
+  Serial.print("RW: ");
+  Serial.println((byte) RW.getRPS());
 }
 
 void ISR_4() {
-  w4.calcRPS();
-  Serial.print("w4: ");
-  Serial.println((byte) w4.getRPS());
+  En.calcRPS();
+  Serial.print("En: ");
+  Serial.println((byte) En.getRPS());
 }
