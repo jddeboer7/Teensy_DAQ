@@ -1,52 +1,24 @@
 //Main Data-recieving code, currently only for gps data
 
-#include <SD.h>
 #include <SPI.h>
 #include <TinyGPS.h>
-
-//Logging variables
-String directory = "arduino";
-File dataFile;
+#include "FileWriter.h"
 
 //GPS variables
 TinyGPS gps;
 HardwareSerial Uart_gps = HardwareSerial();
 String data_buffer;
-
+bool datafile = 0;
+File file;
 
 void setup() {
+  file = fileSetUp();
   Serial.begin(115200);
   Uart_gps.begin(19200);
   Serial2.begin(19200); //Slave connection
   while(!Serial || !Uart_gps || !Serial2){
     ;
   }
-    
-  //Set-up SD card
-  Serial.print("Initializing SD card...");
-  if (!SD.begin(BUILTIN_SDCARD)) {
-    Serial.println("Card failed, or not present");
-    return;
-  }
-  Serial.println("card initialized.");
-
-  /**TODO: add directory and file naming protocols**/
-
-  // Create arduino directory
-  if (!SD.exists(directory.c_str())) {
-    SD.mkdir(directory.c_str());
-    Serial.println("Created directory '" + directory + "'.");
-  } else {
-    Serial.println("Directory '" + directory + "' already exists.");
-  }
-  // Create new file
-  int filename = 1;
-  String path = directory + "/" + String(filename) + ".txt";
-  while(SD.exists(path.c_str())) {
-    filename++;
-  }
-  dataFile = SD.open(path.c_str(), FILE_WRITE);
-  Serial.println("Created file '" + String(filename) + ".txt' in directory.");
   
  }//end setup
 
