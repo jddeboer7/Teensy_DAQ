@@ -3,9 +3,8 @@
 // Write data header.
 void writeHeader(File &file) {
   file.print(F("Time"));
-  file.print(F(",Fuel"));
-  file.print(F(",IR"));
-  file.print(F(",WheelSpeed"));
+  file.print(F(",Front WheelSpeed"));
+  file.print(F(",Rear WheelSpeed"));
   file.println();
 }
 
