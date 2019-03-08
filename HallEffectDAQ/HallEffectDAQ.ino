@@ -12,7 +12,7 @@
 
 const byte TRIGGERS = 1;
 const byte CHARS = 3;
-const int MAX_BUFFER_SIZE = 64; //TODO: find max write buffer 
+const int MAX_BUFFER_SIZE = 12; //TODO: find max write buffer 
 String Buffer = "";
 
 // Instantiate front wheel speed
@@ -26,6 +26,7 @@ void setup() {
    while (!Serial1) {
     ; // Wait for serial port to connect. Needed for native USB port only.
    }
+   Serial1.setTX(5);
 
   // Set up front wheel
   const byte i1 = digitalPinToInterrupt(HE_FR);

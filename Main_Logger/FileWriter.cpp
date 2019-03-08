@@ -1,27 +1,42 @@
 #include "FileWriter.h"
 
-unsigned long REFRESH_RATE = 250;//miliseconds
-
 // Write data header.
-void writeHeader() {
+void writeHeader(File &file) {
   file.print(F("Time"));
+  file.print(F(",Fuel"));
+  file.print(F(",IR"));
   file.print(F(",WheelSpeed"));
   file.println();
 }
 
-// Error messages stored in flash.
-#define error(msg) sdEx.errorHalt(F(msg))
+time_t getTeensy3Time()
+{
+  return Teensy3Clock.get();
+}
 
-File fileSetUp() {
+void fileSetUp(File &file, SdFatSdioEX &sdEx) {
   const uint8_t BASE_NAME_SIZE = sizeof(FILE_BASE_NAME) - 1;
   char fileName[13] = FILE_BASE_NAME "00.csv";
   char runName[6] = DIR_BASE_NAME "00";
-
+  
+  setSyncProvider(getTeensy3Time);
+  Serial.begin(9600);
+  
+  // Wait for USB Serial 
+  while (!Serial) {
+    SysCall::yield();
+  }
+  delay(1000);
+  
   String s = String(month()) + "/" + String(day()) + "/" + String(year()) + "_" + runName;
   String p = String(hourFormat12()) + ":" + String(minute()) + ":" + String(second()) + "_" + fileName;
   Serial.println("Folder Name: " + s);
   Serial.println("File Name: " + p);
-
+  
+  Serial.println(F("Type any character to start"));
+  while (!Serial.available()) {
+    SysCall::yield();
+  }
   
   // Initialize at the highest speed supported by the board that is
   // not over 50 MHz. Try a lower speed if SPI errors occur.
@@ -63,12 +78,14 @@ File fileSetUp() {
   if (!file.open(fileName, O_RDWR | O_CREAT)) {
     error("file.open");
   }
-  setSyncProvider(RTC.get);
-
+  
+  // Read any Serial data.
+  do {
+    delay(10);
+  } while (Serial.available() && Serial.read() >= 0);
+ 
   Serial.print(F("Logging to: "));
   Serial.println(fileName);
 
-  writeHeader();  
-
-  return file;
+  writeHeader(file);
 }
