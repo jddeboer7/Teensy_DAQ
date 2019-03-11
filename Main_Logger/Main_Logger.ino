@@ -59,7 +59,8 @@ void loop() {
   }
   
   if((createND)&&(prev_write - millis() >= REFRESH_RATE)){
-      noInterrupts();     
+      noInterrupts(); 
+      sdEx.chdir("..");    
       createNewDir(sdEx);
       createND = false;
       createNewFile(file, sdEx);

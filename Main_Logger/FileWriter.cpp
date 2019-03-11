@@ -48,6 +48,9 @@ void createNewDir(SdFatSdioEX &sdEx){
   }
   
   sdEx.chdir(runName);
+  Serial.print("Made new directory ");
+  Serial.print(runName);
+  Serial.print("\n");
 }
 
 void createNewFile(File &file, SdFatSdioEX &sdEx){
@@ -69,9 +72,9 @@ void createNewFile(File &file, SdFatSdioEX &sdEx){
 }
 
 void fileSetUp(File &file, SdFatSdioEX &sdEx) {
-  char fileName[13] = FILE_BASE_NAME "00.csv";
   char runName[6] = DIR_BASE_NAME "00";
-  
+  char fileName[13] = FILE_BASE_NAME "00.csv";
+
   setSyncProvider(getTeensy3Time);
   Serial.begin(9600);
   
@@ -117,4 +120,3 @@ void fileSetUp(File &file, SdFatSdioEX &sdEx) {
 
   writeHeader(file);
 }
-
