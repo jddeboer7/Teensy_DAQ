@@ -13,8 +13,20 @@ time_t getTeensy3Time()
   return Teensy3Clock.get();
 }
 
+void nameFile(char *fileName, SdFatSdioEX &sdEx){
+  while (sdEx.exists(fileName)) {
+    if (fileName[BASE_NAME_SIZE + 1] != '9') {
+      fileName[BASE_NAME_SIZE + 1]++;
+    } else if (fileName[BASE_NAME_SIZE] != '9') {
+      fileName[BASE_NAME_SIZE + 1] = '0';
+      fileName[BASE_NAME_SIZE]++;
+    } else {
+      error("Can't create file name");
+    }
+  }
+}
+
 void fileSetUp(File &file, SdFatSdioEX &sdEx) {
-  const uint8_t BASE_NAME_SIZE = sizeof(FILE_BASE_NAME) - 1;
   char fileName[13] = FILE_BASE_NAME "00.csv";
   char runName[6] = DIR_BASE_NAME "00";
   
@@ -64,16 +76,7 @@ void fileSetUp(File &file, SdFatSdioEX &sdEx) {
   
   sdEx.chdir(runName);
   
-  while (sdEx.exists(fileName)) {
-    if (fileName[BASE_NAME_SIZE + 1] != '9') {
-      fileName[BASE_NAME_SIZE + 1]++;
-    } else if (fileName[BASE_NAME_SIZE] != '9') {
-      fileName[BASE_NAME_SIZE + 1] = '0';
-      fileName[BASE_NAME_SIZE]++;
-    } else {
-      error("Can't create file name");
-    }
-  }
+  nameFile(fileName, sdEx);
   if (!file.open(fileName, O_RDWR | O_CREAT)) {
     error("file.open");
   }
@@ -87,4 +90,22 @@ void fileSetUp(File &file, SdFatSdioEX &sdEx) {
   Serial.println(fileName);
 
   writeHeader(file);
+}
+
+void createNewFile(File &file, SdFatSdioEX &sdEx){
+  char fileName[13] = FILE_BASE_NAME "00.csv";
+  
+  Serial.println("closing file");
+  if (!file.close()) 
+    error("file.close");
+  
+  nameFile(fileName, sdEx);
+
+  Serial.print("Opening new file ");
+  Serial.print(fileName);
+  Serial.print("\n");
+  file = sdEx.open(fileName, O_RDWR | O_CREAT);
+
+  writeHeader(file);
+
 }

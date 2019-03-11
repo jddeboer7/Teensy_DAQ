@@ -9,7 +9,7 @@
 // Log file base name.  Must be six characters or less.
 #define FILE_BASE_NAME "Data"
 #define DIR_BASE_NAME "Run"
-
+#define BASE_NAME_SIZE (sizeof(FILE_BASE_NAME) - 1)
 // Error messages stored in flash.
 #define error(msg) sdEx.errorHalt(F(msg))
 
@@ -18,5 +18,7 @@
 const uint8_t ANALOG_COUNT = 1;
 
 void fileSetUp(File &file, SdFatSdioEX &sdEx);
+
+void createNewFile(File &file, SdFatSdioEX &sdEx);
 
 #endif

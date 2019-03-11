@@ -6,12 +6,14 @@
 
 const byte HE_1 = 0;
 const byte HE_2 = 1;
+const byte LAP = 2;
 
 const byte TRIGGERS = 12;
 const byte CHARS = 3;
 
-unsigned long prev_write;
-uint32_t logTime;
+bool createNew = false;
+
+unsigned long prev_write; 
 unsigned long REFRESH_RATE = 250;//miliseconds
 
 const int MAX_BUFFER = 12; //TODO: find max buffer
@@ -26,12 +28,6 @@ WheelSpeed rWheel = WheelSpeed(TRIGGERS);
   
 
 void setup() {
-//  Serial1.begin(19200); //Slave connection
-//    while (!Serial1) {
-//    SysCall::yield();
-//  }
-//  Serial1.setRX(5);
-  
     fileSetUp(file, sdEx);
 
     const byte fWheelInterrupt = digitalPinToInterrupt(HE_1);
@@ -39,6 +35,9 @@ void setup() {
   
     const byte rWheelInterrupt = digitalPinToInterrupt(HE_2);
     attachInterrupt(rWheelInterrupt, rWheelISR, RISING);
+
+    const byte lapInterrupt = digitalPinToInterrupt(LAP);
+    attachInterrupt(lapInterrupt, lapper, FALLING);
   
     prev_write = millis();
 	  
@@ -46,6 +45,13 @@ void setup() {
 
 void loop() {
   // Time for next record.
+  if((createNew)&&(prev_write - millis() >= REFRESH_RATE)){
+      noInterrupts();     
+      createNewFile(file, sdEx);
+      createNew = false;
+      interrupts();
+      prev_write = millis();
+  }
 
   if(prev_write - millis() >= REFRESH_RATE){
     prev_write = millis();
@@ -62,15 +68,6 @@ void loop() {
     file.print("\n");
   }
   
-//  if(data_buffer > MAX_BUFFER){
-//    cli();
-//    file.print(",,,,,");
-//    file.print(data_buffer);
-//    file.print("\n");
-//    data_buffer = "";
-//    sei();  
-//  }
-
    // Force data to SD and update the directory entry to avoid data loss.
   if (!file.sync() || file.getWriteError()) {
     error("write error");
@@ -85,9 +82,6 @@ void rWheelISR() {
   rWheel.calcRPS();
 }
 
-//ISR for slave
-//void serialEvent1(){
-//  while(Serial1.available() > 0){ //need to read enitre string, might not be the way to go
-//    data_buffer += Serial1.read(); 
-//  }  
-//}
+void lapper(){
+  createNew = true;
+}
