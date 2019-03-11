@@ -26,6 +26,48 @@ void nameFile(char *fileName, SdFatSdioEX &sdEx){
   }
 }
 
+void createNewDir(SdFatSdioEX &sdEx){
+  char runName[6] = DIR_BASE_NAME "00";
+
+  if (BASE_NAME_SIZE > 6) {
+    error("FILE_BASE_NAME too long");
+  }
+  while (sdEx.exists(runName)) {
+    if (runName[3 + 1] != '9') {
+      runName[3 + 1]++;
+    } else if (runName[3] != '9') {
+      runName[3 + 1] = '0';
+      runName[3]++;
+    } else {
+      error("Can't create dir name");
+    }
+  }
+  
+  if(!sdEx.mkdir(runName)){
+    error("mkdir error");
+  }
+  
+  sdEx.chdir(runName);
+}
+
+void createNewFile(File &file, SdFatSdioEX &sdEx){
+  char fileName[13] = FILE_BASE_NAME "00.csv";
+  
+  Serial.println("closing file");
+  if (!file.close()) 
+    error("file.close");
+  
+  nameFile(fileName, sdEx);
+
+  Serial.print("Opening new file ");
+  Serial.print(fileName);
+  Serial.print("\n");
+  file = sdEx.open(fileName, O_RDWR | O_CREAT);
+
+  writeHeader(file);
+
+}
+
 void fileSetUp(File &file, SdFatSdioEX &sdEx) {
   char fileName[13] = FILE_BASE_NAME "00.csv";
   char runName[6] = DIR_BASE_NAME "00";
@@ -55,27 +97,11 @@ void fileSetUp(File &file, SdFatSdioEX &sdEx) {
     sdEx.initErrorHalt();
   }
   sdEx.chvol();
+ 
   // Find an unused file name.
-  if (BASE_NAME_SIZE > 6) {
-    error("FILE_BASE_NAME too long");
-  }
-  while (sdEx.exists(runName)) {
-    if (runName[3 + 1] != '9') {
-      runName[3 + 1]++;
-    } else if (runName[3] != '9') {
-      runName[3 + 1] = '0';
-      runName[3]++;
-    } else {
-      error("Can't create dir name");
-    }
-  }
-  
-  if(!sdEx.mkdir(runName)){
-    error("mkdir error");
-  }
-  
-  sdEx.chdir(runName);
-  
+  createNewDir(sdEx);
+
+  // Open a new file 
   nameFile(fileName, sdEx);
   if (!file.open(fileName, O_RDWR | O_CREAT)) {
     error("file.open");
@@ -92,20 +118,3 @@ void fileSetUp(File &file, SdFatSdioEX &sdEx) {
   writeHeader(file);
 }
 
-void createNewFile(File &file, SdFatSdioEX &sdEx){
-  char fileName[13] = FILE_BASE_NAME "00.csv";
-  
-  Serial.println("closing file");
-  if (!file.close()) 
-    error("file.close");
-  
-  nameFile(fileName, sdEx);
-
-  Serial.print("Opening new file ");
-  Serial.print(fileName);
-  Serial.print("\n");
-  file = sdEx.open(fileName, O_RDWR | O_CREAT);
-
-  writeHeader(file);
-
-}

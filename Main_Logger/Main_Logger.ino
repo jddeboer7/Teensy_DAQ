@@ -7,11 +7,13 @@
 const byte HE_1 = 0;
 const byte HE_2 = 1;
 const byte LAP = 2;
+const byte RUN = 3;
 
 const byte TRIGGERS = 12;
 const byte CHARS = 3;
 
-bool createNew = false;
+bool createNF = false;
+bool createND = false;
 
 unsigned long prev_write; 
 unsigned long REFRESH_RATE = 250;//miliseconds
@@ -38,6 +40,9 @@ void setup() {
 
     const byte lapInterrupt = digitalPinToInterrupt(LAP);
     attachInterrupt(lapInterrupt, lapper, FALLING);
+
+    const byte runInterrupt = digitalPinToInterrupt(RUN);
+    attachInterrupt(runInterrupt, runner, FALLING);
   
     prev_write = millis();
 	  
@@ -45,14 +50,23 @@ void setup() {
 
 void loop() {
   // Time for next record.
-  if((createNew)&&(prev_write - millis() >= REFRESH_RATE)){
+  if((createNF)&&(prev_write - millis() >= REFRESH_RATE)){
       noInterrupts();     
       createNewFile(file, sdEx);
-      createNew = false;
+      createNF = false;
       interrupts();
       prev_write = millis();
   }
-
+  
+  if((createND)&&(prev_write - millis() >= REFRESH_RATE)){
+      noInterrupts();     
+      createNewDir(sdEx);
+      createND = false;
+      createNewFile(file, sdEx);
+      interrupts();
+      prev_write = millis();
+  }
+  
   if(prev_write - millis() >= REFRESH_RATE){
     prev_write = millis();
     file.print(hour());
@@ -64,7 +78,7 @@ void loop() {
     file.print(fWheel.getRPS() * 5.75958653);
     file.print(",");
     file.print(rWheel.getRPS() * 5.75958653);
-    file.print(String(millis(), 5)); // Assumes 11" effective wheel radius
+    //file.print(String(millis(), 5)); // Assumes 11" effective wheel radius
     file.print("\n");
   }
   
@@ -83,5 +97,9 @@ void rWheelISR() {
 }
 
 void lapper(){
-  createNew = true;
+  createNF = true;
+}
+
+void runner(){
+  createND = true;
 }

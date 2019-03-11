@@ -21,4 +21,6 @@ void fileSetUp(File &file, SdFatSdioEX &sdEx);
 
 void createNewFile(File &file, SdFatSdioEX &sdEx);
 
+void createNewDir(SdFatSdioEX &sdEx);
+
 #endif
