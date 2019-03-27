@@ -32,6 +32,7 @@ WheelSpeed rWheel = WheelSpeed(TRIGGERS);
 void setup() {
     fileSetUp(file, sdEx);
 
+    pinMode(RUN, INPUT);
     const byte fWheelInterrupt = digitalPinToInterrupt(HE_1);
     attachInterrupt(fWheelInterrupt, fWheelISR, RISING);
   
@@ -42,8 +43,8 @@ void setup() {
     attachInterrupt(lapInterrupt, lapper, FALLING);
 
     const byte runInterrupt = digitalPinToInterrupt(RUN);
-    attachInterrupt(runInterrupt, runner, FALLING);
-  
+    attachInterrupt(runInterrupt, runner, RISING);
+    
     prev_write = millis();
 	  
  }//end setup
@@ -68,7 +69,7 @@ void loop() {
       prev_write = millis();
   }
   
-  if(prev_write - millis() >= REFRESH_RATE){
+  if((prev_write - millis() >= REFRESH_RATE)&&digitalRead(RUN)){
     prev_write = millis();
     file.print(hour());
     file.print(":");
