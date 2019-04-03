@@ -1,6 +1,6 @@
 #include "FileWriter.h"
 
-// Write data header.
+// Write data header
 void writeHeader(File &file) {
   file.print(F("Time"));
   file.print(F(",Front WheelSpeed"));
@@ -44,11 +44,11 @@ void createNewDir(SdFatSdioEX &sdEx){
   }
   
   if(!sdEx.mkdir(runName)){
-    error("mkdir error");
+    error("mkdir");
   }
   
   sdEx.chdir(runName);
-  Serial.print("Made new directory ");
+  Serial.print("Made new directory");
   Serial.print(runName);
   Serial.print("\n");
 }
@@ -56,7 +56,7 @@ void createNewDir(SdFatSdioEX &sdEx){
 void createNewFile(File &file, SdFatSdioEX &sdEx){
   char fileName[13] = FILE_BASE_NAME "00.csv";
   
-  Serial.println("closing file");
+  Serial.println("Closing file");
   if (!file.close()) 
     error("file.close");
   
@@ -68,7 +68,6 @@ void createNewFile(File &file, SdFatSdioEX &sdEx){
   file = sdEx.open(fileName, O_RDWR | O_CREAT);
 
   writeHeader(file);
-
 }
 
 void fileSetUp(File &file, SdFatSdioEX &sdEx) {
@@ -78,10 +77,10 @@ void fileSetUp(File &file, SdFatSdioEX &sdEx) {
   setSyncProvider(getTeensy3Time);
   Serial.begin(9600);
   
-  // Wait for USB Serial 
-  while (!Serial) {
-    SysCall::yield();
-  }
+//  // Wait for USB Serial 
+//  while (!Serial) {
+//    SysCall::yield();
+//  }
   delay(1000);
   
   String s = String(month()) + "/" + String(day()) + "/" + String(year()) + "_" + runName;
@@ -89,10 +88,10 @@ void fileSetUp(File &file, SdFatSdioEX &sdEx) {
   Serial.println("Folder Name: " + s);
   Serial.println("File Name: " + p);
   
-  Serial.println(F("Type any character to start"));
-  while (!Serial.available()) {
-    SysCall::yield();
-  }
+//  Serial.println(F("Type any character to start"));
+//  while (!Serial.available()) {
+//    SysCall::yield();
+//  }
   
   // Initialize at the highest speed supported by the board that is
   // not over 50 MHz. Try a lower speed if SPI errors occur.
@@ -101,7 +100,7 @@ void fileSetUp(File &file, SdFatSdioEX &sdEx) {
   }
   sdEx.chvol();
  
-  // Find an unused file name.
+  // Find an unused file name
   createNewDir(sdEx);
 
   // Open a new file 
@@ -110,7 +109,7 @@ void fileSetUp(File &file, SdFatSdioEX &sdEx) {
     error("file.open");
   }
   
-  // Read any Serial data.
+  // Read any serial data
   do {
     delay(10);
   } while (Serial.available() && Serial.read() >= 0);
