@@ -1,5 +1,3 @@
-//Main Data-recieving code, currently only for gps data
-
 #include <SPI.h>
 #include "FileWriter.h"
 #include "WheelSpeed.h"
@@ -22,6 +20,7 @@ const int MAX_BUFFER = 12; //TODO: find max buffer
 
 File file;
 SdFatSdioEX sdEx;
+SdFatSdioEX sdRoot; 
 String data_buffer;
 
 //Instantiate front wheel speed
@@ -30,7 +29,7 @@ WheelSpeed rWheel = WheelSpeed(TRIGGERS);
   
 
 void setup() {
-    fileSetUp(file, sdEx);
+    fileSetUp(file, sdRoot, sdEx);
 
     pinMode(RUN, INPUT);
     const byte fWheelInterrupt = digitalPinToInterrupt(HE_1);
@@ -40,7 +39,7 @@ void setup() {
     attachInterrupt(rWheelInterrupt, rWheelISR, RISING);
 
     const byte lapInterrupt = digitalPinToInterrupt(LAP);
-    attachInterrupt(lapInterrupt, lapper, FALLING);
+    attachInterrupt(lapInterrupt, lapper, RISING);
 
     const byte runInterrupt = digitalPinToInterrupt(RUN);
     attachInterrupt(runInterrupt, runner, RISING);
@@ -61,8 +60,7 @@ void loop() {
   
   if((createND)&&(prev_write - millis() >= REFRESH_RATE)){
       noInterrupts(); 
-      sdEx.chdir("..");    
-      createNewDir(sdEx);
+      createNewDir(sdEx, sdRoot);
       createND = false;
       createNewFile(file, sdEx);
       interrupts();
