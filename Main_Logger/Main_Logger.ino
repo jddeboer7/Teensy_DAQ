@@ -6,12 +6,14 @@ const byte HE_1 = 0;
 const byte HE_2 = 1;
 const byte LAP = 2;
 const byte RUN = 3;
+const byte LED = 4;
 
 const byte TRIGGERS = 12;
 const byte CHARS = 3;
 
 bool createNF = false;
 bool createND = false;
+bool loggingOn = false;
 
 unsigned long prev_write; 
 unsigned long REFRESH_RATE = 250;//miliseconds
@@ -32,6 +34,7 @@ void setup() {
     fileSetUp(file, sdRoot, sdEx);
 
     pinMode(RUN, INPUT);
+    pinMode(LED, OUTPUT);
     const byte fWheelInterrupt = digitalPinToInterrupt(HE_1);
     attachInterrupt(fWheelInterrupt, fWheelISR, RISING);
   
@@ -67,7 +70,7 @@ void loop() {
       prev_write = millis();
   }
   
-  if((prev_write - millis() >= REFRESH_RATE)&&digitalRead(RUN)){
+  if((prev_write - millis() >= REFRESH_RATE)&&loggingOn){
     prev_write = millis();
     file.print(hour());
     file.print(":");
@@ -101,5 +104,12 @@ void lapper(){
 }
 
 void runner(){
-  createND = true;
+  if(loggingOn){
+    loggingOn = false;
+    digitalWrite(LED, LOW);
+  }else{
+    createND = true;
+    loggingOn = true;
+    digitalWrite(LED, HIGH);
+  }
 }
